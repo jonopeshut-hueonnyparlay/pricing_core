@@ -25,6 +25,11 @@ def test_version_exposed():
     assert isinstance(pricing_core.__version__, str) and pricing_core.__version__
 
 
+def test_shared_wnba_nb_r_constant():
+    from pricing_core import WNBA_NB_R
+    assert WNBA_NB_R == {"reb": 10.74, "ast": 11.37, "fg3m": 5.0}
+
+
 # ---- distributions ---------------------------------------------------------
 def test_normal_cdf_known_and_degenerate():
     assert normal_cdf(0.0, 0.0, 1.0) == 0.5

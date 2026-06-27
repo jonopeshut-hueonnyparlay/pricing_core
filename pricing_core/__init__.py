@@ -12,3 +12,5 @@ machine ever appears, build a wheel and pin `pricing-core==X.Y.Z` -- imports and
 tests are unchanged.
 """
 __version__ = "0.1.0"
+
+from .constants import WNBA_NB_R  # noqa: E402,F401  shared calibrated constants (single source of truth)
