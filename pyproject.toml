@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pricing-core"
+version = "0.1.0"
+description = "Shared distribution->probability + game-line pricing for the EdgeModel/JonnyParlay system"
+requires-python = ">=3.11"
+
+# Ships the canonical math as TOP-LEVEL modules `quant` and `game_line_pricing`
+# (not namespaced under pricing_core) so existing `from quant... import` and
+# `from game_line_pricing import` call sites in JonnyParlay resolve from the
+# installed package unchanged once the in-repo copies are removed. The
+# `pricing_core` package itself carries just the version / metadata.
+[tool.setuptools]
+packages = ["pricing_core", "quant"]
+py-modules = ["game_line_pricing"]
