@@ -7,6 +7,9 @@ name = "pricing-core"
 version = "0.1.0"
 description = "Shared distribution->probability + game-line pricing for the EdgeModel/JonnyParlay system"
 requires-python = ">=3.11"
+# quant uses scipy.stats (Student-t etc.); the rest is stdlib. Declared so a fresh
+# `pip install -e .` (incl. CI) pulls it.
+dependencies = ["scipy"]
 
 # Ships the canonical math as TOP-LEVEL modules `quant` and `game_line_pricing`
 # (not namespaced under pricing_core) so existing `from quant... import` and

@@ -1,0 +1,41 @@
+name: CI
+
+# pricing_core CI. pricing_core is the shared library both EdgeModel and JonnyParlay
+# depend on (installed from this repo's public git URL), so a regression here only
+# surfaced downstream. Mirrors the consumers' minimal solo-dev CI: ruff lint (blocking)
+# + ruff format check (advisory) + pytest. No requirements.txt -> install the package
+# itself (which pulls scipy via pyproject) plus the test/lint tooling. windows-latest
+# matches the dev environment and the consumers' CI.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-and-test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install package + tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest ruff
+
+      - name: Ruff lint (blocking)
+        run: python -m ruff check --output-format=github .
+
+      - name: Ruff format check (advisory)
+        continue-on-error: true
+        run: python -m ruff format --check .
+
+      - name: Pytest
+        run: python -m pytest --basetemp=.pytest_tmp
