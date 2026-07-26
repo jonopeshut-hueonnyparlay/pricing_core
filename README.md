@@ -27,3 +27,31 @@ repo's `requirements.txt`; imports and tests don't change.
 ## Determinism
 Pure `math`-based closed-form functions (no RNG); byte-identical across runs.
 Pin this package's version alongside Python/NumPy when reproducibility matters.
+
+## Releasing (ADR-002)
+
+Both consumers pin this package by version tag, not a raw git SHA. Cutting a
+release is the repo owner's explicit responsibility -- it is a deliberate act,
+not automated:
+
+1. Bump `version` in `pyproject.toml` (semver: patch for non-breaking fixes,
+   minor for additive API, major for breaking changes to `quant`/
+   `game_line_pricing`'s public functions).
+2. `pip install -e . --no-deps` locally to refresh the installed metadata
+   (`pricing_core.__version__` reads it dynamically via
+   `importlib.metadata` -- there is no second hardcoded version string to
+   forget).
+3. `git tag -a vX.Y.Z -m "..."` at the commit to release, then
+   `git push origin vX.Y.Z`. **Push the tag before** re-pinning either
+   consumer -- a pin referencing a tag that isn't pushed yet breaks
+   `pip install -r requirements.txt` anywhere that resolves it fresh (CI, a
+   new machine, a deploy).
+4. From EdgeModel: `python scripts/bump_pricing_core.py vX.Y.Z` -- re-pins
+   EdgeModel's `requirements.txt` *and* `requirements.lock.txt`, plus
+   JonnyParlay's `requirements.txt`, atomically.
+5. `python scripts/bump_pricing_core.py vX.Y.Z --check` -- confirms all three
+   pins agree (this doubles as the cross-repo compatibility validation ADR-002
+   calls for; a genuine blocking CI check across the two separate GitHub
+   repos is a separate, not-yet-decided piece of work -- see ADR-002's Open
+   Questions).
+6. Run each repo's full test suite against the new pin before committing.

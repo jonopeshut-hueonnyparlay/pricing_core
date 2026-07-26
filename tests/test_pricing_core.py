@@ -9,6 +9,9 @@ Run from C:\\Dev\\pricing_core:
     python -m pytest -q
 """
 import math
+import re
+from importlib.metadata import version as _pkg_version
+from pathlib import Path
 
 import pricing_core
 from quant.distributions import normal_cdf, negbinom_pmf, negbinom_cdf, poisson_pmf, poisson_cdf
@@ -23,6 +26,19 @@ _ALPHA = 0.25  # the consumers' BLEND_ALPHA
 
 def test_version_exposed():
     assert isinstance(pricing_core.__version__, str) and pricing_core.__version__
+
+
+def test_version_sourced_from_package_metadata_not_hardcoded():
+    """ADR-002: __version__ must derive from installed package metadata
+    (pyproject.toml's declared version -- the single source of truth), not a
+    second hardcoded literal that can silently drift from it. This is the same
+    duplication class the ADR-002 governance work exists to close."""
+    init_src = Path(pricing_core.__file__).read_text(encoding="utf-8")
+    assert re.search(r"importlib\.metadata|from importlib\.metadata", init_src), (
+        "pricing_core/__init__.py must derive __version__ from installed "
+        "package metadata (importlib.metadata), not a hardcoded literal"
+    )
+    assert pricing_core.__version__ == _pkg_version("pricing-core")
 
 
 def test_shared_wnba_nb_r_constant():

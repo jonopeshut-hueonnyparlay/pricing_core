@@ -11,6 +11,11 @@ Single-box, single-operator: editable-installed (`pip install -e`). If a second
 machine ever appears, build a wheel and pin `pricing-core==X.Y.Z` -- imports and
 tests are unchanged.
 """
-__version__ = "0.1.0"
+from importlib.metadata import PackageNotFoundError, version as _pkg_version
+
+try:
+    __version__ = _pkg_version("pricing-core")
+except PackageNotFoundError:  # pragma: no cover -- only if the editable install is missing
+    __version__ = "0.0.0+unknown"
 
 from .constants import WNBA_NB_R  # noqa: E402,F401  shared calibrated constants (single source of truth)
