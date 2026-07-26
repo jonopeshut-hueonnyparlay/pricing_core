@@ -6,6 +6,12 @@ name: CI
 # + ruff format check (advisory) + pytest. No requirements.txt -> install the package
 # itself (which pulls scipy via pyproject) plus the test/lint tooling. windows-latest
 # matches the dev environment and the consumers' CI.
+#
+# ruff is pinned (2026-07-26 -- CI was silently red on main since an unpinned `pip
+# install ruff` picked up a newer default ruleset than anyone's local ruff had ever
+# been run against; found via `gh run list` after a routine tag push, not by anyone
+# noticing). Pinned to the exact version EdgeModel/JonnyParlay already pin, for the
+# same reason their own comment states: all three repos lint identically.
 
 on:
   push:
@@ -28,7 +34,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
-          pip install pytest ruff
+          pip install pytest ruff==0.15.17
 
       - name: Ruff lint (blocking)
         run: python -m ruff check --output-format=github .
